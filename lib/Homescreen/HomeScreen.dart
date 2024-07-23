@@ -1,3 +1,4 @@
+import 'package:bookify/BookUploading/BookDetailUploading.dart';
 import 'package:bookify/Homescreen/ContinueReading.dart';
 import 'package:bookify/authentication/Login.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -122,9 +123,13 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             ListTile(
               leading: const Icon(Icons.settings),
-              title: const Text('Settings'),
+              title: const Text('Upload Book'),
               onTap: () {
                 // Handle settings tap
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => BookUpload()),
+                );
               },
             ),
             ListTile(
