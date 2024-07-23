@@ -66,7 +66,7 @@ class DetailPage extends StatelessWidget {
                                     bottomRight: Radius.circular(10),
                                   ),
                                   image: DecorationImage(
-                                    image: AssetImage(item['image']!),
+                                    image: NetworkImage(item['image']!),
                                     fit: BoxFit.cover,
                                   ),
                                 ),

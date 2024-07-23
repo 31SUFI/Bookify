@@ -1,6 +1,7 @@
 import 'package:bookify/BookUploading/BookDetailUploading.dart';
 import 'package:bookify/Homescreen/ContinueReading.dart';
 import 'package:bookify/authentication/Login.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'intro_section.dart';
@@ -14,32 +15,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final Map<String, Map<String, String>> books = {
-    'book1': {
-      'title': 'The Mind of a Leader',
-      'author': 'Kevin Anderson',
-      'authorImage': 'assets/images/circleAvatar.jpeg',
-      'image': 'assets/images/lor.jpeg',
-    },
-    'book2': {
-      'title': 'Infinite Country',
-      'author': 'Patricia Engel',
-      'authorImage': 'assets/images/circleAvatar.jpeg',
-      'image': 'assets/images/bookfinal.png',
-    },
-    'book3': {
-      'title': 'The Domestic Goddess',
-      'author': 'Sophie Kinsella',
-      'authorImage': 'assets/images/circleAvatar.jpeg',
-      'image': 'assets/images/HarryPotter.jpeg',
-    },
-    'book4': {
-      'title': 'The Domestic Goddess',
-      'author': 'Sophie Kinsella',
-      'authorImage': 'assets/images/circleAvatar.jpeg',
-      'image': 'assets/images/1984.jpeg',
-    },
-  };
+  late FirebaseFirestore db;
+  final List<Map<String, dynamic>> books = [];
 
   final List<Category> categories = [
     Category(label: 'All', isSelected: true),
@@ -53,17 +30,37 @@ class _HomeScreenState extends State<HomeScreen> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    db = FirebaseFirestore.instance;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      getDataFromFireStore();
+    });
+  }
+
+  getDataFromFireStore() async {
+    await db.collection("BookDetails").get().then((event) {
+      for (var doc in event.docs) {
+        print("${doc.id} => ${doc.data()}");
+        books.add(doc.data());
+      }
+    });
+    setState(() {});
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(
           "Bookify",
           style: TextStyle(
-              fontWeight: FontWeight.normal, fontStyle: FontStyle.italic),
+            fontWeight: FontWeight.normal,
+            fontStyle: FontStyle.italic,
+          ),
         ),
         centerTitle: true,
         backgroundColor: const Color.fromARGB(255, 174, 128, 1),
-        // backgroundColor: Colors.transparent,
         elevation: 0,
         leading: Builder(
           builder: (context) => IconButton(
@@ -75,27 +72,10 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         actions: [
           IconButton(
-            icon: const Stack(
-              children: [
-                Icon(Icons.circle_rounded,
-                    color: Colors.white), // Placeholder icon
-                Positioned(
-                  top: 0.0, // Adjust positioning as needed
-                  left: 0.0,
-                  child: CircleAvatar(
-                    radius: 12.0, // Adjust radius based on desired size
-                    backgroundColor:
-                        Colors.white, // Background color for avatar
-                    child: Icon(
-                      Icons
-                          .person_2_rounded, // Placeholder icon for avatar (optional)
-                      color: Colors.black, // Color for avatar icon (optional)
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            onPressed: () {},
+            icon: const Icon(Icons.notifications, color: Colors.white),
+            onPressed: () {
+              // Handle notification button press (optional)
+            },
           ),
         ],
       ),
@@ -107,8 +87,7 @@ class _HomeScreenState extends State<HomeScreen> {
               accountName: Text("Muhammad Sufiyan"),
               accountEmail: Text("ksufi7350@gmail.com"),
               currentAccountPicture: const CircleAvatar(
-                backgroundImage: AssetImage(
-                    "assets/images/circleAvatar.jpeg"), // Replace with your profile image URL
+                backgroundImage: AssetImage("assets/images/circleAvatar.jpeg"),
               ),
               decoration: BoxDecoration(
                 color: const Color.fromARGB(255, 174, 128, 1),
@@ -122,10 +101,9 @@ class _HomeScreenState extends State<HomeScreen> {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.settings),
+              leading: const Icon(Icons.upload_file),
               title: const Text('Upload Book'),
               onTap: () {
-                // Handle settings tap
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => BookUpload()),
@@ -156,11 +134,10 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(height: 24),
               TrendingBooksSection(books: books),
               const SizedBox(height: 24),
-              AuthorsSection(books: books),
-              const SizedBox(
-                height: 24,
-              ),
-              ContinueReading(book: books['book1']!),
+              // Uncomment the following lines if these sections are needed
+              // AuthorsSection(books: books),
+              // const SizedBox(height: 24),
+              // ContinueReading(book: books[0]), // Adjust this line to use an actual book from the list
             ],
           ),
         ),

@@ -55,6 +55,11 @@ class _BookUploadState extends State<BookUpload> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text("Publish Your Book"),
+        centerTitle: true,
+        backgroundColor: const Color.fromARGB(255, 174, 128, 1),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
@@ -138,8 +143,16 @@ class _BookUploadState extends State<BookUpload> {
                       if (imageUrl.isNotEmpty) {
                         print('Image URL: $imageUrl');
                       }
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          // backgroundColor: Colors.brown,
+                          content: Text(
+                              'Book Uploaded Succesfully, you can clear form now'),
+                          behavior: SnackBarBehavior.floating,
+                        ),
+                      );
                     },
-                    child: Text('Save'),
+                    child: Text('Publish Now'),
                     style: ElevatedButton.styleFrom(
                         //backgroundColor: Colors.brown[700],
                         ),

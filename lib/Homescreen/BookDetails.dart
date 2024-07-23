@@ -25,7 +25,7 @@ class BookDetailsScreen extends StatelessWidget {
                 tag: book['title'],
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(10),
-                  child: Image.asset(
+                  child: Image.network(
                     book['image'],
                     height: 300, // Adjust height as needed
                     fit: BoxFit.cover,

@@ -3,7 +3,7 @@ import 'package:bookify/Homescreen/detail_page.dart';
 import 'package:flutter/material.dart';
 
 class TrendingBooksSection extends StatelessWidget {
-  final Map<String, Map<String, String>> books;
+  final List<Map<String, dynamic>> books;
 
   TrendingBooksSection({required this.books});
 
@@ -29,11 +29,11 @@ class TrendingBooksSection extends StatelessWidget {
                   MaterialPageRoute(
                     builder: (context) => DetailPage(
                       title: 'Trending Books',
-                      items: books.entries
+                      items: books
                           .map((entry) => {
-                                'title': entry.value['title']!,
-                                'author': entry.value['author']!,
-                                'image': entry.value['image']!,
+                                'title': '${entry['bookName']!}',
+                                'author': '${entry['authorName']!}',
+                                'image': '${entry['image']!}',
                               })
                           .toList(),
                     ),
@@ -54,14 +54,13 @@ class TrendingBooksSection extends StatelessWidget {
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: Row(
-            children: books.entries.map((entry) {
-              final book = entry.value;
-              return BookCard(
-                title: book['title']!,
-                author: book['author']!,
-                image: book['image']!,
-              );
-            }).toList(),
+            children: books
+                .map((entry) => BookCard(
+                      title: entry['bookName'],
+                      author: entry['authorName'],
+                      image: entry['image'],
+                    ))
+                .toList(),
           ),
         ),
       ],
@@ -99,12 +98,12 @@ class BookCard extends StatelessWidget {
           children: [
             Container(
               height: 180,
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage(image),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Image.network(
+                  image,
                   fit: BoxFit.cover,
                 ),
-                borderRadius: BorderRadius.circular(8),
               ),
             ),
             SizedBox(height: 8),
