@@ -1,13 +1,17 @@
+import 'package:bookify/AuthorRegistering/registerAuthor.dart';
 import 'package:bookify/BookUploading/BookDetailUploading.dart';
 import 'package:bookify/Homescreen/ContinueReading.dart';
+import 'package:bookify/Homescreen/authors_section.dart';
 import 'package:bookify/authentication/Login.dart';
+import 'package:bookify/authentication/ProfileSection.dart';
+import 'package:bookify/favoriteBooks.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'intro_section.dart';
 import 'categories_section.dart';
 import 'trending_books_section.dart';
-import 'authors_section.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -16,7 +20,6 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   late FirebaseFirestore db;
-  final List<Map<String, dynamic>> books = [];
 
   final List<Category> categories = [
     Category(label: 'All', isSelected: true),
@@ -33,19 +36,20 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     db = FirebaseFirestore.instance;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      getDataFromFireStore();
-    });
   }
 
-  getDataFromFireStore() async {
-    await db.collection("BookDetails").get().then((event) {
-      for (var doc in event.docs) {
-        print("${doc.id} => ${doc.data()}");
-        books.add(doc.data());
-      }
-    });
-    setState(() {});
+  Stream<List<Map<String, dynamic>>> getBooksStream() {
+    return db.collection("BookDetails").snapshots().map((snapshot) => snapshot
+        .docs
+        .map((doc) => doc.data() as Map<String, dynamic>)
+        .toList());
+  }
+
+  Stream<List<Map<String, dynamic>>> getAuthorsStream() {
+    return db.collection("AuthorDetails").snapshots().map((snapshot) => snapshot
+        .docs
+        .map((doc) => doc.data() as Map<String, dynamic>)
+        .toList());
   }
 
   @override
@@ -54,17 +58,15 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         title: Text(
           "Bookify",
-          style: TextStyle(
-            fontWeight: FontWeight.normal,
-            fontStyle: FontStyle.italic,
-          ),
+          style: GoogleFonts.merriweather(
+              textStyle: TextStyle(
+                  fontWeight: FontWeight.bold, fontStyle: FontStyle.italic)),
         ),
         centerTitle: true,
-        backgroundColor: const Color.fromARGB(255, 174, 128, 1),
         elevation: 0,
         leading: Builder(
           builder: (context) => IconButton(
-            icon: const Icon(Icons.menu, color: Colors.white),
+            icon: const Icon(Icons.menu, color: Colors.black),
             onPressed: () {
               Scaffold.of(context).openDrawer();
             },
@@ -72,9 +74,9 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.notifications, color: Colors.white),
+            icon: const Icon(Icons.notifications, color: Colors.black),
             onPressed: () {
-              // Handle notification button press (optional)
+              _showDialogBox(context);
             },
           ),
         ],
@@ -86,7 +88,7 @@ class _HomeScreenState extends State<HomeScreen> {
             const UserAccountsDrawerHeader(
               accountName: Text("Muhammad Sufiyan"),
               accountEmail: Text("ksufi7350@gmail.com"),
-              currentAccountPicture: const CircleAvatar(
+              currentAccountPicture: CircleAvatar(
                 backgroundImage: AssetImage("assets/images/circleAvatar.jpeg"),
               ),
               decoration: BoxDecoration(
@@ -97,7 +99,16 @@ class _HomeScreenState extends State<HomeScreen> {
               leading: const Icon(Icons.person),
               title: const Text('Profile'),
               onTap: () {
-                // Handle profile tap
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => ProfileScreen()));
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.person),
+              title: const Text('Register as an Author'),
+              onTap: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => AuthorRegister()));
               },
             ),
             ListTile(
@@ -111,11 +122,20 @@ class _HomeScreenState extends State<HomeScreen> {
               },
             ),
             ListTile(
+              leading: const Icon(Icons.favorite_border),
+              title: const Text('Favorites'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => FavoriteBooksPage()),
+                );
+              },
+            ),
+            ListTile(
               leading: const Icon(Icons.logout),
               title: const Text('Logout'),
               onTap: () async {
                 await FirebaseAuth.instance.signOut();
-                // Navigate to the login screen after logout
                 Navigator.of(context).pushReplacement(
                     MaterialPageRoute(builder: (context) => SignInScreen()));
               },
@@ -132,16 +152,45 @@ class _HomeScreenState extends State<HomeScreen> {
               IntroSection(),
               CategoriesSection(categories: categories),
               const SizedBox(height: 24),
-              TrendingBooksSection(books: books),
+              TrendingBooksSection(booksStream: getBooksStream()),
               const SizedBox(height: 24),
-              // Uncomment the following lines if these sections are needed
-              // AuthorsSection(books: books),
-              // const SizedBox(height: 24),
-              // ContinueReading(book: books[0]), // Adjust this line to use an actual book from the list
+              AuthorsSection(authorStream: getAuthorsStream()), // Update here
+              const SizedBox(height: 24),
+              ContinueReading(
+                  book:
+                      getBooksStream()), // Adjust this line to use an actual book from the list
             ],
           ),
         ),
       ),
     );
   }
+}
+
+// notification dialog box
+void _showDialogBox(BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text('Enable Notifications'),
+        content: Text('Do you want to recieve latest updates about books?'),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(); // Close the dialog
+            },
+            child: Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              print("Cliked in yes");
+              Navigator.of(context).pop(); // Close the dialog
+            },
+            child: Text('Yes'),
+          ),
+        ],
+      );
+    },
+  );
 }

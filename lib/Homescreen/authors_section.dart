@@ -1,67 +1,83 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'detail_page.dart';
 
 class AuthorsSection extends StatelessWidget {
-  final Map<String, Map<String, String>> books;
+  final Stream<List<Map<String, dynamic>>> authorStream;
 
-  AuthorsSection({required this.books});
+  const AuthorsSection({super.key, required this.authorStream});
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return StreamBuilder<List<Map<String, dynamic>>>(
+      stream: authorStream,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return Center(child: Text('No authors available'));
+        }
+
+        final authorData = snapshot.data!;
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Top Authors',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => DetailPage(
-                      title: 'Top Authors',
-                      items: books.entries
-                          .map((entry) => {
-                                'author': entry.value['author']!,
-                                'image': entry.value['authorImage']!
-                              })
-                          .toList(),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Top Authors',
+                  style: GoogleFonts.merriweather(
+                      textStyle: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                  )),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => DetailPage(
+                          title: 'Top Authors',
+                          items: authorData
+                              .map((author) => {
+                                    'author': '${author['authorName']!}',
+                                    'image': '${author['image']!}',
+                                  })
+                              .toList(),
+                        ),
+                      ),
+                    );
+                  },
+                  child: Text(
+                    'View all',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.blue,
                     ),
                   ),
-                );
-              },
-              child: Text(
-                'View all',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.blue,
                 ),
+              ],
+            ),
+            SizedBox(height: 16),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: authorData.map((author) {
+                  return AuthorCard(
+                    name: author['authorName']!,
+                    image: author['image']!,
+                  );
+                }).toList(),
               ),
             ),
           ],
-        ),
-        SizedBox(height: 16),
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            children: books.entries.map((entry) {
-              final book = entry.value;
-              return AuthorCard(
-                name: book['author']!,
-                image: book['authorImage']!,
-              );
-            }).toList(),
-          ),
-        ),
-      ],
+        );
+      },
     );
   }
 }
@@ -80,7 +96,7 @@ class AuthorCard extends StatelessWidget {
         children: [
           CircleAvatar(
             radius: 30,
-            backgroundImage: AssetImage(image),
+            backgroundImage: NetworkImage(image),
           ),
           SizedBox(height: 8),
           Text(

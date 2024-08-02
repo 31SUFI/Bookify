@@ -1,101 +1,88 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_pdfview/flutter_pdfview.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:http/http.dart' as http;
 
-class ReadNow extends StatelessWidget {
-  final Map<String, dynamic> book;
+class ReadNow extends StatefulWidget {
+  final String pdfUrl;
 
-  ReadNow({required this.book});
+  ReadNow({required this.pdfUrl});
+
+  @override
+  _ReadNowState createState() => _ReadNowState();
+}
+
+class _ReadNowState extends State<ReadNow> {
+  String? localFilePath;
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    downloadAndLoadPDF();
+  }
+
+  Future<void> downloadAndLoadPDF() async {
+    try {
+      final url = widget.pdfUrl;
+      final response = await http.get(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        final directory = await getApplicationDocumentsDirectory();
+        final file = File('${directory.path}/tempFile.pdf');
+        await file.writeAsBytes(response.bodyBytes);
+
+        setState(() {
+          localFilePath = file.path;
+          isLoading = false;
+        });
+      } else {
+        throw Exception('Failed to load PDF');
+      }
+    } catch (e) {
+      print('Error loading PDF: $e');
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        backgroundColor: const Color.fromARGB(255, 174, 128, 1),
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context); // Go back to the previous screen
-          },
+        title: Text(
+          'Read Now',
+          style: GoogleFonts.merriweather(
+              textStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
         ),
-        title: Text("Continue Reading"),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.favorite),
-            onPressed: () {},
-          ),
-        ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Book Cover (Centered with Margin)
-              SizedBox(
-                height: 300, // Adjust height as needed
-                child: Center(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 32.0),
-                    child: Hero(
-                      tag: book['title'],
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
-                        child: Image.network(
-                          book['image'],
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              SizedBox(height: 16),
-
-              // Book Title (Centered)
-              Center(
-                child: Text(
-                  book['title'],
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              SizedBox(height: 8),
-
-              // Book Author (Centered)
-              Center(
-                child: Text(
-                  'by ${book['author']}',
-                  style: TextStyle(fontSize: 18),
-                ),
-              ),
-
-              SizedBox(height: 16),
-
-              // Chapter (Centered)
-              Center(
-                child: Text(
-                  'Chapter 1',
-                  style: const TextStyle(
-                      fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-              ),
-
-              SizedBox(height: 20),
-
-              // Text Excerpt (Scrollable)
-              Container(
-                child: Text(
-                  'The two hide behind a shower wall while gunfire rings out around them. They overhear three sicarios looking for a man and a child (Sebastián and Luca). One of the killers takes a picture of a dead thinking hola it is Luca, but it is his nine-year-old cousin, Adrián. The three men search the house. Lydia notices a drop of Luca\'s blood on the three\nThe two hide behind a shower wall while gunfire rings out around them. They overhear three sicarios looking for a man and a child (Sebastián and Luca). One of the killers takes a picture of a dead thinking hola it is Luca, but it is his nine-year-old cousin, Adrián. The three men search the house. Lydia notices a drop of Luca\'s blood on the thre ',
-                  style: TextStyle(fontSize: 16),
-                ),
-              ),
-            ],
-          ),
-        ),
+      body: Stack(
+        children: [
+          if (localFilePath != null)
+            PDFView(
+              filePath: localFilePath!,
+              enableSwipe: true,
+              swipeHorizontal: true,
+              autoSpacing: false,
+              pageFling: false,
+              onRender: (_) {
+                setState(() {
+                  isLoading = false;
+                });
+              },
+              onError: (error) {
+                print('Error rendering PDF: $error');
+              },
+            ),
+          if (isLoading)
+            Center(
+              child: CircularProgressIndicator(),
+            ),
+        ],
       ),
     );
   }

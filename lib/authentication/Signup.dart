@@ -1,3 +1,5 @@
+import 'package:bookify/Homescreen/HomeScreen.dart';
+import 'package:bookify/authentication/Login.dart';
 import 'package:bookify/welcomeScreen.dart';
 import 'package:flutter/material.dart';
 //import 'package:google_fonts/google_fonts.dart';
@@ -182,9 +184,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 Center(child: Text('Or')),
                 SizedBox(height: 16),
                 ElevatedButton.icon(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => HomeScreen()),
+                    );
+                  },
                   icon: Icon(Icons.account_circle),
-                  label: Text('Continue with Google'),
+                  label: Text('Continue as Guest'),
                   style: ElevatedButton.styleFrom(
                     foregroundColor: Color.fromARGB(255, 164, 132, 45),
                     backgroundColor: Colors.white,
@@ -201,12 +208,25 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 Center(
                   child: TextButton(
                     onPressed: () {
-                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => SignInScreen()),
+                      );
                     },
-                    child: Text(
-                      "Already have an account? Sign in",
-                      style: TextStyle(
-                        color: Color.fromARGB(255, 164, 132, 45),
+                    child: RichText(
+                      text: TextSpan(
+                        children: [
+                          TextSpan(
+                              text: "Already have an account? ",
+                              style: TextStyle(
+                                  color: Color.fromARGB(255, 164, 132, 45),
+                                  fontWeight: FontWeight.normal)),
+                          TextSpan(
+                              text: "Sign in",
+                              style: TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold)),
+                        ],
                       ),
                     ),
                   ),

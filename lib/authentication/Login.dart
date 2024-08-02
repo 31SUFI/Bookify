@@ -2,7 +2,7 @@ import 'package:bookify/Homescreen/HomeScreen.dart';
 import 'package:bookify/authentication/Signup.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-//import 'package:fluttertoast/fluttertoast.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class SignInScreen extends StatefulWidget {
   @override
@@ -14,6 +14,7 @@ class _SignInScreenState extends State<SignInScreen> {
   final _passwordController = TextEditingController();
   bool _isPasswordVisible = false;
   bool _isChecked = false;
+  bool _isLoading = false; // To manage loading state for Google Sign-In
 
   @override
   void dispose() {
@@ -145,20 +146,30 @@ class _SignInScreenState extends State<SignInScreen> {
               Center(
                   child: Text(
                 'Or',
-                style: TextStyle(fontWeight: FontWeight.bold),
+                //style: TextStyle(fontSize: 15),
               )),
               SizedBox(height: 16),
               ElevatedButton.icon(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => HomeScreen()),
-                  );
-                },
-                icon: Icon(Icons.account_circle),
+                onPressed: _isLoading ? null : _signInWithGoogle,
+                icon: _isLoading
+                    ? SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2.0,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            const Color.fromARGB(255, 174, 128, 1),
+                          ),
+                        ),
+                      )
+                    : Image.asset(
+                        'assets/images/google_logo.jpeg', // Make sure this path is correct
+                        height: 40,
+                        //width: 50,
+                      ),
                 label: Text('Continue with Google'),
                 style: ElevatedButton.styleFrom(
-                  foregroundColor: const Color.fromARGB(255, 174, 128, 1),
+                  foregroundColor: Color.fromARGB(255, 21, 21, 21),
                   backgroundColor: Colors.white,
                   side:
                       BorderSide(color: const Color.fromARGB(255, 174, 128, 1)),
@@ -177,10 +188,21 @@ class _SignInScreenState extends State<SignInScreen> {
                       MaterialPageRoute(builder: (context) => SignUpScreen()),
                     );
                   },
-                  child: Text(
-                    "Don't have an account? Create an account",
-                    style: TextStyle(
-                        color: Colors.black, fontWeight: FontWeight.w500),
+                  child: RichText(
+                    text: TextSpan(
+                      children: [
+                        TextSpan(
+                            text: "Don't have an account? ",
+                            style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.normal)),
+                        TextSpan(
+                            text: "Create account",
+                            style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold)),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -193,7 +215,6 @@ class _SignInScreenState extends State<SignInScreen> {
 
   Future<void> _signInWithEmailAndPassword() async {
     try {
-      // ignore: unused_local_variable
       UserCredential userCredential =
           await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: _emailController.text.trim(),
@@ -201,12 +222,10 @@ class _SignInScreenState extends State<SignInScreen> {
       );
 
       // Sign-in successful
-      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Sign in successful'),
           behavior: SnackBarBehavior.floating,
-          //backgroundColor: Color.fromARGB(255, 234, 218, 175),
         ),
       );
 
@@ -216,7 +235,6 @@ class _SignInScreenState extends State<SignInScreen> {
         MaterialPageRoute(builder: (context) => HomeScreen()),
       );
     } on FirebaseAuthException catch (e) {
-      // Handle sign-in errors
       String message = 'Error: ${e.message}';
       if (e.code == 'user-not-found') {
         message = 'No user found for that email.';
@@ -224,20 +242,66 @@ class _SignInScreenState extends State<SignInScreen> {
         message = 'Wrong password provided.';
       }
 
-      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(message),
         ),
       );
     } catch (e) {
-      // Handle any other errors
-      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Error: ${e.toString()}'),
         ),
       );
+    }
+  }
+
+  Future<void> _signInWithGoogle() async {
+    setState(() {
+      _isLoading = true; // Start loading
+    });
+
+    try {
+      // Trigger the authentication flow
+      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+
+      // Obtain the auth details from the request
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser!.authentication;
+
+      // Create a new credential
+      final AuthCredential credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      // Sign in to Firebase with the Google user credentials
+      final UserCredential userCredential =
+          await FirebaseAuth.instance.signInWithCredential(credential);
+
+      // Sign-in successful
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Google Sign-In successful'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+
+      // Navigate to the next screen
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => HomeScreen()),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Google Sign-In failed: ${e.toString()}'),
+        ),
+      );
+    } finally {
+      setState(() {
+        _isLoading = false; // Stop loading
+      });
     }
   }
 }

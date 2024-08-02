@@ -1,7 +1,9 @@
+//this widget just statically only shows 1st book of cloud firestore
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class ContinueReading extends StatelessWidget {
-  final Map<String, String> book;
+  final Stream<List<Map<String, dynamic>>> book;
   const ContinueReading({Key? key, required this.book}) : super(key: key);
 
   @override
@@ -10,97 +12,101 @@ class ContinueReading extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.only(left: 16.0, bottom: 8.0),
+          padding: const EdgeInsets.only(bottom: 8.0),
           child: Text(
             "Continue Reading",
-            style: TextStyle(
+            style: GoogleFonts.merriweather(
+                textStyle: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 18,
-            ),
+            )),
           ),
         ),
-        Card(
-          elevation: 0,
-          margin: EdgeInsets.zero,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Container(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-              color: Color.fromARGB(255, 240, 226, 213), // Background color
-            ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+        SizedBox(height: 8),
+        StreamBuilder<List<Map<String, dynamic>>>(
+          stream: book,
+          builder: (context, snapshot) {
+            if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+              final firstBook = snapshot.data![0]; // Get the first book
+
+              return Card(
+                elevation: 0,
+                margin: EdgeInsets.zero,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 16.0, vertical: 16.0),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    color:
+                        Color.fromARGB(255, 240, 226, 213), // Background color
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      SizedBox(height: 12), // Remove heading
-                      Row(
+                      Image.network(
+                        firstBook['image']!,
+                        height: 60,
+                        width: 40,
+                      ),
+                      SizedBox(width: 16),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Image.asset(
-                            book['image']!,
-                            height: 60,
-                            width: 40,
+                          Text(
+                            firstBook['bookName']!,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
                           ),
-                          SizedBox(width: 16),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                          SizedBox(height: 4),
+                          Text(
+                            firstBook['authorName']!,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: const Color.fromARGB(
+                                  255, 138, 102, 89), // Text color
+                            ),
+                          ),
+                          SizedBox(height: 4),
+                          Row(
                             children: [
-                              Text(
-                                book['title']!,
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                ),
+                              Icon(
+                                Icons.star,
+                                color: Colors.amber,
+                                size: 16,
                               ),
-                              SizedBox(height: 4),
+                              SizedBox(width: 4),
                               Text(
-                                book['author']!,
+                                "4.6",
                                 style: TextStyle(
                                   fontSize: 12,
                                   color: const Color.fromARGB(
                                       255, 138, 102, 89), // Text color
                                 ),
                               ),
-                              SizedBox(height: 4),
-                              Row(
-                                children: [
-                                  Icon(
-                                    Icons.star,
-                                    color: Colors.amber,
-                                    size: 16,
-                                  ),
-                                  SizedBox(width: 4),
-                                  Text(
-                                    "4.6",
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: const Color.fromARGB(
-                                          255, 138, 102, 89), // Text color
-                                    ),
-                                  ),
-                                ],
-                              ),
                             ],
                           ),
                         ],
                       ),
+                      Spacer(),
+                      Icon(
+                        Icons.arrow_forward_ios,
+                        size: 20,
+                      ),
                     ],
                   ),
                 ),
-                SizedBox(width: 16),
-                Icon(
-                  Icons.arrow_forward_ios,
-                  size: 20,
-                ),
-              ],
-            ),
-          ),
+              );
+            } else if (snapshot.hasError) {
+              return Text("Error: ${snapshot.error}");
+            } else {
+              return CircularProgressIndicator(); // Loading indicator
+            }
+          },
         ),
       ],
     );

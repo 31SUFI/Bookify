@@ -1,5 +1,6 @@
 import 'dart:developer'; // Import this for the log function
 import 'package:bookify/BookUploading/BookDetailUploading.dart';
+import 'package:bookify/authentication/ProfileSection.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 //import 'package:login_page/testingFirestore.dart';
@@ -28,9 +29,22 @@ class Databaseservice {
 
   // delete() async {
   //   try {
-  //     _fire.collection("Lora").doc("K6Swy1xsenAqdvEnrBIw").delete();
+  //     _fire.collection("aaa").doc("K6Swy1xsenAqdvEnrBIw").delete();
   //   } catch (e) {
   //     log(e.toString()); // Log the error message
   //   }
   // }
+}
+
+class DatabaseService {
+  final FirebaseFirestore _fire = FirebaseFirestore.instance;
+
+  void updateProfile(ProfilePacket packet) {
+    try {
+      _fire.collection("ProfileDetails").add(packet.toMap());
+    } catch (e) {
+      print(e.toString()); // Log the error message
+    }
+    print('Profile updated with details: ${packet.toMap()}');
+  }
 }

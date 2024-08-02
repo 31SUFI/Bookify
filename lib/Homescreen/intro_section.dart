@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class IntroSection extends StatelessWidget {
   @override
@@ -7,19 +8,14 @@ class IntroSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Hello, Sufi👋',
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-          ),
+          'Hello Sufi 👋',
+          style: GoogleFonts.merriweather(
+              textStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
         ),
         SizedBox(height: 8),
         Text(
           'Find your favourite category !',
-          style: TextStyle(
-            fontSize: 16,
-            color: Colors.grey[600],
-          ),
+          style: GoogleFonts.merriweather(textStyle: TextStyle(fontSize: 16)),
         ),
         SizedBox(height: 16),
       ],
