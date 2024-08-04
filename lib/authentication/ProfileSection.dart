@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:bookify/Homescreen/HomeScreen.dart';
 import 'package:bookify/databaseService.dart';
-import 'package:bookify/favoriteBooks.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -75,77 +74,79 @@ class _ProfileScreenState extends State<ProfileScreen> {
           final userProfile = snapshot.data!.data()!;
 
           return SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  CircleAvatar(
-                    radius: 50,
-                    backgroundImage: NetworkImage(userProfile['image'] ??
-                        'https://via.placeholder.com/150'),
+            child: Column(
+              children: [
+                CircleAvatar(
+                  radius: 50,
+                  backgroundImage: NetworkImage(userProfile['image'] ??
+                      'https://via.placeholder.com/150'),
+                ),
+                SizedBox(height: 16),
+                Text(
+                  userProfile['name'] ?? 'No Name',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
                   ),
-                  SizedBox(height: 16),
-                  Text(
-                    userProfile['name'] ?? 'No Name',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
+                ),
+                SizedBox(height: 5),
+                Text(
+                  userProfile['email'] ?? 'No Email',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.grey,
                   ),
-                  SizedBox(height: 8),
-                  Text(
-                    userProfile['email'] ?? 'No Email',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey,
-                    ),
+                ),
+                SizedBox(height: 20),
+                Center(
+                  child: Column(
+                    children: [
+                      ProfileMenuItem(
+                        icon: Icons.privacy_tip_outlined,
+                        text: 'Privacy',
+                        onTap: () {
+                          // Add navigation logic here
+                        },
+                      ),
+                      ProfileMenuItem(
+                        icon: Icons.history_outlined,
+                        text: 'Purchase History',
+                        onTap: () {
+                          // Add navigation logic here
+                        },
+                      ),
+                      ProfileMenuItem(
+                        icon: Icons.help_outlined,
+                        text: 'Help & Support',
+                        onTap: () {
+                          // Add navigation logic here
+                        },
+                      ),
+                      ProfileMenuItem(
+                        icon: Icons.settings_outlined,
+                        text: 'Settings',
+                        onTap: () {
+                          // Add navigation logic here
+                        },
+                      ),
+                      ProfileMenuItem(
+                        icon: Icons.person_add_outlined,
+                        text: 'Invite a Friend',
+                        onTap: () {
+                          // Add navigation logic here
+                        },
+                      ),
+                      ProfileMenuItem(
+                        icon: Icons.logout_outlined,
+                        text: 'Logout',
+                        onTap: () {
+                          // Handle tap
+                        },
+                      ),
+                    ],
                   ),
-                  // SizedBox(height: 16),
-                  // ElevatedButton(
-                  //   onPressed: () {
-                  //     // Add upgrade logic here
-                  //   },
-                  //   child: Text('Upgrade to PRO'),
-                  //   style: ElevatedButton.styleFrom(
-                  //     backgroundColor: Colors.orange,
-                  //     padding:
-                  //         EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-                  //     shape: RoundedRectangleBorder(
-                  //       borderRadius: BorderRadius.circular(20),
-                  //     ),
-                  //   ),
-                  // ),
-                  SizedBox(height: 32),
-                  ProfileMenuItem(
-                    icon: Icons.privacy_tip,
-                    text: 'Privacy',
-                    onTap: () {
-                      // Add navigation logic here
-                    },
-                  ),
-                  ProfileMenuItem(
-                    icon: Icons.help,
-                    text: 'Help & Support',
-                    onTap: () {
-                      // Add navigation logic here
-                    },
-                  ),
-                  ProfileMenuItem(
-                    icon: Icons.settings,
-                    text: 'Settings',
-                    onTap: () {
-                      // Add navigation logic here
-                    },
-                  ),
-                  ProfileMenuItem(
-                    icon: Icons.logout,
-                    text: 'Logout',
-                    onTap: () {
-                      // Handle tap
-                    },
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
           );
         },
@@ -290,21 +291,26 @@ class ProfileMenuItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(5.0),
-      child: Center(
-        child: Container(
-          margin: EdgeInsets.symmetric(vertical: 8.0),
-          decoration: BoxDecoration(
-            color: Colors.grey.shade200,
-            borderRadius: BorderRadius.circular(25),
+    return Center(
+      child: Container(
+        width: MediaQuery.of(context).size.width *
+            0.87, //sett width to 80% of the screen width
+        height: 55,
+
+        margin: EdgeInsets.symmetric(vertical: 8.0),
+        decoration: BoxDecoration(
+          color: Color.fromARGB(255, 229, 224, 224),
+          borderRadius: BorderRadius.circular(40),
+        ),
+        child: ListTile(
+          leading: Icon(icon),
+          title: Text(
+            text,
+            style: TextStyle(
+                fontWeight: FontWeight.bold, fontStyle: FontStyle.italic),
           ),
-          child: ListTile(
-            leading: Icon(icon),
-            title: Text(text),
-            trailing: Icon(Icons.arrow_forward_ios),
-            onTap: onTap,
-          ),
+          trailing: Icon(Icons.arrow_forward_ios),
+          onTap: onTap,
         ),
       ),
     );
