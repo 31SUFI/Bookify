@@ -3,6 +3,7 @@ import 'package:bookify/authentication/Signup.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SignInScreen extends StatefulWidget {
   @override
@@ -14,7 +15,7 @@ class _SignInScreenState extends State<SignInScreen> {
   final _passwordController = TextEditingController();
   bool _isPasswordVisible = false;
   bool _isChecked = false;
-  bool _isLoading = false; // To manage loading state for Google Sign-In
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -163,9 +164,8 @@ class _SignInScreenState extends State<SignInScreen> {
                         ),
                       )
                     : Image.asset(
-                        'assets/images/google_logo.jpeg', // Make sure this path is correct
+                        'assets/images/google_logo.jpeg',
                         height: 40,
-                        //width: 50,
                       ),
                 label: Text('Continue with Google'),
                 style: ElevatedButton.styleFrom(
@@ -221,6 +221,10 @@ class _SignInScreenState extends State<SignInScreen> {
         password: _passwordController.text.trim(),
       );
 
+      // Save login state in SharedPreferences
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      prefs.setBool('isLoggedIn', true);
+
       // Sign-in successful
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -262,22 +266,21 @@ class _SignInScreenState extends State<SignInScreen> {
     });
 
     try {
-      // Trigger the authentication flow
       final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
-
-      // Obtain the auth details from the request
       final GoogleSignInAuthentication googleAuth =
           await googleUser!.authentication;
 
-      // Create a new credential
       final AuthCredential credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
 
-      // Sign in to Firebase with the Google user credentials
       final UserCredential userCredential =
           await FirebaseAuth.instance.signInWithCredential(credential);
+
+      // Save login state in SharedPreferences
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      prefs.setBool('isLoggedIn', true);
 
       // Sign-in successful
       ScaffoldMessenger.of(context).showSnackBar(
