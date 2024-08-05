@@ -1,9 +1,10 @@
-//this widget just statically only shows 1st book of cloud firestore
+import 'package:bookify/Homescreen/shimmers_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class ContinueReading extends StatelessWidget {
   final Stream<List<Map<String, dynamic>>> book;
+
   const ContinueReading({Key? key, required this.book}) : super(key: key);
 
   @override
@@ -16,17 +17,21 @@ class ContinueReading extends StatelessWidget {
           child: Text(
             "Continue Reading",
             style: GoogleFonts.merriweather(
-                textStyle: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 18,
-            )),
+              textStyle: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+              ),
+            ),
           ),
         ),
         SizedBox(height: 8),
         StreamBuilder<List<Map<String, dynamic>>>(
           stream: book,
           builder: (context, snapshot) {
-            if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              // Display shimmer effect while loading
+              return ContinueReadingShimmer();
+            } else if (snapshot.hasData && snapshot.data!.isNotEmpty) {
               final firstBook = snapshot.data![0]; // Get the first book
 
               return Card(
@@ -104,7 +109,7 @@ class ContinueReading extends StatelessWidget {
             } else if (snapshot.hasError) {
               return Text("Error: ${snapshot.error}");
             } else {
-              return CircularProgressIndicator(); // Loading indicator
+              return Text('No data available');
             }
           },
         ),

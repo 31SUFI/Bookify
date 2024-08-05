@@ -1,10 +1,14 @@
 import 'dart:io';
 import 'package:bookify/Homescreen/HomeScreen.dart';
+import 'package:bookify/authentication/Login.dart';
 import 'package:bookify/databaseService.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfileScreen extends StatefulWidget {
   @override
@@ -84,18 +88,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 SizedBox(height: 16),
                 Text(
                   userProfile['name'] ?? 'No Name',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: GoogleFonts.merriweather(
+                      textStyle: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          fontStyle: FontStyle.italic)),
                 ),
                 SizedBox(height: 5),
                 Text(
                   userProfile['email'] ?? 'No Email',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey,
-                  ),
+                  style: GoogleFonts.merriweather(
+                      textStyle:
+                          TextStyle(fontSize: 13, fontStyle: FontStyle.italic)),
                 ),
                 SizedBox(height: 20),
                 Center(
@@ -139,8 +143,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ProfileMenuItem(
                         icon: Icons.logout_outlined,
                         text: 'Logout',
-                        onTap: () {
-                          // Handle tap
+                        onTap: () async {
+                          await FirebaseAuth.instance.signOut();
+                          SharedPreferences prefs =
+                              await SharedPreferences.getInstance();
+                          prefs.setBool('isLoggedIn', false);
+
+                          // Navigate back to the login screen
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => SignInScreen()),
+                          );
                         },
                       ),
                     ],

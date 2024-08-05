@@ -1,5 +1,6 @@
 import 'package:bookify/Homescreen/BookDetails.dart';
 import 'package:bookify/Homescreen/detail_page.dart';
+import 'package:bookify/Homescreen/shimmers_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -14,7 +15,13 @@ class TrendingBooksSection extends StatelessWidget {
       stream: booksStream,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
+          // Display shimmer effect while loading
+          return SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: List.generate(5, (index) => BookCardShimmer()).toList(),
+            ),
+          );
         } else if (snapshot.hasError) {
           return Center(child: Text('Error: ${snapshot.error}'));
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
