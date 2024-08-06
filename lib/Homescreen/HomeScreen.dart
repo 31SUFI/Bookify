@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'intro_section.dart';
@@ -8,6 +7,7 @@ import 'categories_section.dart';
 import 'trending_books_section.dart';
 import 'authors_section.dart';
 import 'ContinueReading.dart';
+import 'custom_drawer.dart'; // Import the new file
 import 'package:bookify/AuthorRegistering/registerAuthor.dart';
 import 'package:bookify/BookUploading/BookDetailUploading.dart';
 import 'package:bookify/authentication/Login.dart';
@@ -110,75 +110,7 @@ class _HomeScreenState extends State<HomeScreen>
           ),
         ],
       ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            const UserAccountsDrawerHeader(
-              accountName: Text("Muhammad Sufiyan"),
-              accountEmail: Text("ksufi7350@gmail.com"),
-              currentAccountPicture: CircleAvatar(
-                backgroundImage:
-                    AssetImage(" 'https://via.placeholder.com/150'"),
-              ),
-              decoration: BoxDecoration(
-                color: Color.fromARGB(255, 174, 128, 1),
-              ),
-            ),
-            ListTile(
-              leading: const Icon(Icons.person),
-              title: const Text('Profile'),
-              onTap: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => ProfileScreen()));
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.person),
-              title: const Text('Register as an Author'),
-              onTap: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => AuthorRegister()));
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.upload_file),
-              title: const Text('Upload Book'),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => BookUpload()),
-                );
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.favorite_border),
-              title: const Text('Favorites'),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => FavoriteBooksPage()),
-                );
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.logout),
-              title: const Text('Logout'),
-              onTap: () async {
-                await FirebaseAuth.instance.signOut();
-                SharedPreferences prefs = await SharedPreferences.getInstance();
-                prefs.setBool('isLoggedIn', false);
-
-                // Navigate back to the login screen
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => SignInScreen()),
-                );
-              },
-            ),
-          ],
-        ),
-      ),
+      drawer: CustomDrawer(), // Use the new CustomDrawer widget
       body: SlideTransition(
         position: _slideAnimation,
         child: Padding(

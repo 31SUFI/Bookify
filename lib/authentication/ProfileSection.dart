@@ -18,22 +18,62 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   final _dbservice = DatabaseService();
   late FirebaseFirestore db;
-  late Stream<DocumentSnapshot<Map<String, dynamic>>> profileStream;
+  Stream<DocumentSnapshot<Map<String, dynamic>>>? profileStream = null;
+  String? userEmail;
 
   @override
   void initState() {
     super.initState();
     db = FirebaseFirestore.instance;
-    // Replace 'userProfileDocId' with the actual document ID
-    profileStream =
-        db.collection("ProfileDetails").doc("2A7hm7vZ7OFpBLLCHVcq").snapshots();
+    _loadUserProfile();
+  }
+
+  Future<void> _loadUserProfile() async {
+    // Retrieve the stored email from SharedPreferences
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    userEmail = prefs.getString('userEmail');
+
+    if (userEmail != null) {
+      // Query Firestore for the user profile using the email
+      final QuerySnapshot<Map<String, dynamic>> querySnapshot = await db
+          .collection("ProfileDetails")
+          .where("email", isEqualTo: userEmail)
+          .get();
+
+      // Iterate over the documents to find the relevant profile
+      DocumentSnapshot<Map<String, dynamic>>? userProfileDoc;
+      for (var doc in querySnapshot.docs) {
+        if (doc['email'] == userEmail) {
+          userProfileDoc = doc;
+          break;
+        }
+      }
+
+      // If the relevant profile is found, set up the stream
+      if (userProfileDoc != null) {
+        profileStream =
+            db.collection("ProfileDetails").doc(userProfileDoc.id).snapshots();
+
+        setState(() {});
+      } else {
+        // Handle case where no matching profile is found
+        print('No profile found for the user');
+      }
+    }
   }
 
   Future<void> updateProfileInFirestore(ProfilePacket profilePacket) async {
-    await db
-        .collection("ProfileDetails")
-        .doc("2A7hm7vZ7OFpBLLCHVcq")
-        .update(profilePacket.toMap());
+    if (userEmail != null) {
+      await db
+          .collection("ProfileDetails")
+          .where("email", isEqualTo: userEmail)
+          .get()
+          .then((snapshot) {
+        if (snapshot.docs.isNotEmpty) {
+          snapshot.docs.first.reference.update(profilePacket.toMap());
+        }
+      });
+    }
   }
 
   @override
@@ -60,111 +100,113 @@ class _ProfileScreenState extends State<ProfileScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
-      body: StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
-        stream: profileStream,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          }
+      body: profileStream != null
+          ? StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+              stream: profileStream!,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(child: CircularProgressIndicator());
+                }
 
-          if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          }
+                if (snapshot.hasError) {
+                  return Center(child: Text('Error: ${snapshot.error}'));
+                }
 
-          if (!snapshot.hasData || !snapshot.data!.exists) {
-            return Center(child: Text('No Profile Data'));
-          }
+                if (!snapshot.hasData || !snapshot.data!.exists) {
+                  return Center(child: Text('No Profile Data'));
+                }
 
-          final userProfile = snapshot.data!.data()!;
+                final userProfile = snapshot.data!.data()!;
 
-          return SingleChildScrollView(
-            child: Column(
-              children: [
-                CircleAvatar(
-                  radius: 50,
-                  backgroundImage: NetworkImage(userProfile['image'] ??
-                      'https://via.placeholder.com/150'),
-                ),
-                SizedBox(height: 16),
-                Text(
-                  userProfile['name'] ?? 'No Name',
-                  style: GoogleFonts.merriweather(
-                      textStyle: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          fontStyle: FontStyle.italic)),
-                ),
-                SizedBox(height: 5),
-                Text(
-                  userProfile['email'] ?? 'No Email',
-                  style: GoogleFonts.merriweather(
-                      textStyle:
-                          TextStyle(fontSize: 13, fontStyle: FontStyle.italic)),
-                ),
-                SizedBox(height: 20),
-                Center(
+                return SingleChildScrollView(
                   child: Column(
                     children: [
-                      ProfileMenuItem(
-                        icon: Icons.privacy_tip_outlined,
-                        text: 'Privacy',
-                        onTap: () {
-                          // Add navigation logic here
-                        },
+                      CircleAvatar(
+                        radius: 50,
+                        backgroundImage: NetworkImage(userProfile['image'] ??
+                            'https://via.placeholder.com/150'),
                       ),
-                      ProfileMenuItem(
-                        icon: Icons.history_outlined,
-                        text: 'Purchase History',
-                        onTap: () {
-                          // Add navigation logic here
-                        },
+                      SizedBox(height: 16),
+                      Text(
+                        userProfile['name'] ?? 'No Name',
+                        style: GoogleFonts.merriweather(
+                            textStyle: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                fontStyle: FontStyle.italic)),
                       ),
-                      ProfileMenuItem(
-                        icon: Icons.help_outlined,
-                        text: 'Help & Support',
-                        onTap: () {
-                          // Add navigation logic here
-                        },
+                      SizedBox(height: 5),
+                      Text(
+                        userProfile['email'] ?? 'No Email',
+                        style: GoogleFonts.merriweather(
+                            textStyle: TextStyle(
+                                fontSize: 13, fontStyle: FontStyle.italic)),
                       ),
-                      ProfileMenuItem(
-                        icon: Icons.settings_outlined,
-                        text: 'Settings',
-                        onTap: () {
-                          // Add navigation logic here
-                        },
-                      ),
-                      ProfileMenuItem(
-                        icon: Icons.person_add_outlined,
-                        text: 'Invite a Friend',
-                        onTap: () {
-                          // Add navigation logic here
-                        },
-                      ),
-                      ProfileMenuItem(
-                        icon: Icons.logout_outlined,
-                        text: 'Logout',
-                        onTap: () async {
-                          await FirebaseAuth.instance.signOut();
-                          SharedPreferences prefs =
-                              await SharedPreferences.getInstance();
-                          prefs.setBool('isLoggedIn', false);
+                      SizedBox(height: 20),
+                      Center(
+                        child: Column(
+                          children: [
+                            ProfileMenuItem(
+                              icon: Icons.privacy_tip_outlined,
+                              text: 'Privacy',
+                              onTap: () {
+                                // Add navigation logic here
+                              },
+                            ),
+                            ProfileMenuItem(
+                              icon: Icons.history_outlined,
+                              text: 'Purchase History',
+                              onTap: () {
+                                // Add navigation logic here
+                              },
+                            ),
+                            ProfileMenuItem(
+                              icon: Icons.help_outlined,
+                              text: 'Help & Support',
+                              onTap: () {
+                                // Add navigation logic here
+                              },
+                            ),
+                            ProfileMenuItem(
+                              icon: Icons.settings_outlined,
+                              text: 'Settings',
+                              onTap: () {
+                                // Add navigation logic here
+                              },
+                            ),
+                            ProfileMenuItem(
+                              icon: Icons.person_add_outlined,
+                              text: 'Invite a Friend',
+                              onTap: () {
+                                // Add navigation logic here
+                              },
+                            ),
+                            ProfileMenuItem(
+                              icon: Icons.logout_outlined,
+                              text: 'Logout',
+                              onTap: () async {
+                                await FirebaseAuth.instance.signOut();
+                                SharedPreferences prefs =
+                                    await SharedPreferences.getInstance();
+                                prefs.setBool('isLoggedIn', false);
 
-                          // Navigate back to the login screen
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => SignInScreen()),
-                          );
-                        },
+                                // Navigate back to the login screen
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => SignInScreen()),
+                                );
+                              },
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
-                ),
-              ],
-            ),
-          );
-        },
-      ),
+                );
+              },
+            )
+          : Center(child: CircularProgressIndicator()),
     );
   }
 
@@ -308,9 +350,8 @@ class ProfileMenuItem extends StatelessWidget {
     return Center(
       child: Container(
         width: MediaQuery.of(context).size.width *
-            0.87, //sett width to 80% of the screen width
+            0.87, // Set width to 87% of the screen width
         height: 55,
-
         margin: EdgeInsets.symmetric(vertical: 8.0),
         decoration: BoxDecoration(
           color: Color.fromARGB(255, 229, 224, 224),
@@ -321,7 +362,9 @@ class ProfileMenuItem extends StatelessWidget {
           title: Text(
             text,
             style: TextStyle(
-                fontWeight: FontWeight.bold, fontStyle: FontStyle.italic),
+              fontWeight: FontWeight.bold,
+              fontStyle: FontStyle.italic,
+            ),
           ),
           trailing: Icon(Icons.arrow_forward_ios),
           onTap: onTap,

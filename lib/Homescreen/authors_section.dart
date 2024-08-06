@@ -1,7 +1,7 @@
+import 'package:bookify/Homescreen/AuthorsDetailsPage.dart';
 import 'package:bookify/Homescreen/shimmers_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'detail_page.dart';
 
 class AuthorsSection extends StatelessWidget {
   final Stream<List<Map<String, dynamic>>> authorStream;
@@ -49,14 +49,8 @@ class AuthorsSection extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => DetailPage(
-                          title: 'Top Authors',
-                          items: authorData
-                              .map((author) => {
-                                    'author': '${author['authorName']!}',
-                                    'image': '${author['image']!}',
-                                  })
-                              .toList(),
+                        builder: (context) => AuthorsDetailsPage(
+                          authors: authorData,
                         ),
                       ),
                     );
