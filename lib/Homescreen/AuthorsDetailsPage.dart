@@ -21,7 +21,7 @@ class _AuthorsDetailsPageState extends State<AuthorsDetailsPage>
 
     // Initialize the AnimationController and the SlideTransition
     _controller = AnimationController(
-      duration: Duration(seconds: 2),
+      duration: Duration(seconds: 1),
       vsync: this,
     )..addStatusListener((status) {
         print('Animation Status: $status');
