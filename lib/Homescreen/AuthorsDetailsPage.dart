@@ -67,7 +67,7 @@ class _AuthorsDetailsPageState extends State<AuthorsDetailsPage>
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 3,
               crossAxisSpacing: 10,
-              mainAxisSpacing: 10,
+              mainAxisSpacing: 20,
               childAspectRatio: 0.75,
             ),
             itemCount: widget.authors

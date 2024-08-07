@@ -83,7 +83,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.push(
+            Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (context) => HomeScreen()),
             );
@@ -121,10 +121,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 return SingleChildScrollView(
                   child: Column(
                     children: [
-                      CircleAvatar(
-                        radius: 50,
-                        backgroundImage: NetworkImage(userProfile['image'] ??
-                            'https://via.placeholder.com/150'),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => FullScreenImage(
+                                imageUrl: userProfile['image'] ??
+                                    'https://via.placeholder.com/150',
+                              ),
+                            ),
+                          );
+                        },
+                        child: Hero(
+                          tag: 'profileImageHero',
+                          child: CircleAvatar(
+                            radius: 50,
+                            backgroundImage: NetworkImage(
+                                userProfile['image'] ??
+                                    'https://via.placeholder.com/150'),
+                          ),
+                        ),
                       ),
                       SizedBox(height: 16),
                       Text(
@@ -206,7 +223,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 );
               },
             )
-          : Center(child: CircularProgressIndicator()),
+          : Center(
+              child: SizedBox(
+                width: 100, // Adjust width as needed
+                // Adjust height as needed
+                child: LinearProgressIndicator(
+                  color: Color.fromARGB(255, 174, 128, 1),
+                ),
+              ),
+            ),
     );
   }
 
@@ -305,7 +330,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     ),
                   ),
-                  SizedBox(height: 16),
+                  SizedBox(height: 24),
                   ElevatedButton(
                     onPressed: () async {
                       final profilePacket = ProfilePacket(
@@ -334,6 +359,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 }
 
+class FullScreenImage extends StatelessWidget {
+  final String imageUrl;
+
+  FullScreenImage({required this.imageUrl});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+      ),
+      body: Center(
+        child: Hero(
+          tag: 'profileImageHero',
+          child: Image.network(imageUrl),
+        ),
+      ),
+    );
+  }
+}
+
 class ProfileMenuItem extends StatelessWidget {
   final IconData icon;
   final String text;
@@ -349,8 +396,7 @@ class ProfileMenuItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Container(
-        width: MediaQuery.of(context).size.width *
-            0.87, // Set width to 87% of the screen width
+        width: MediaQuery.of(context).size.width * 0.87,
         height: 55,
         margin: EdgeInsets.symmetric(vertical: 8.0),
         decoration: BoxDecoration(
