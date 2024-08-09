@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:bookify/Homescreen/BookDetails.dart'; // Ensure favoriteBooks is accessible
+import 'package:bookify/features/Homescreen/presentation/BookDetails.dart'; // Ensure favoriteBooks is accessible
 
 class FavoriteBooksPage extends StatefulWidget {
   @override

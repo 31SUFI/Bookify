@@ -1,26 +1,55 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:bookify/AuthorRegistering/registerAuthor.dart';
-import 'package:bookify/BookUploading/BookDetailUploading.dart';
-import 'package:bookify/authentication/Login.dart';
-import 'package:bookify/authentication/ProfileSection.dart';
-import 'package:bookify/favoriteBooks.dart';
+import 'package:bookify/features/AuthorRegistering/presentation/registerAuthor.dart';
+import 'package:bookify/features/BookUploading/presentation/BookDetailUploading.dart';
+import 'package:bookify/features/authentication/presentation/Login.dart';
+import 'package:bookify/features/authentication/presentation/ProfileSection.dart';
+import 'package:bookify/features/Homescreen/presentation/favoriteBooks.dart';
 
-class CustomDrawer extends StatelessWidget {
+class CustomDrawer extends StatefulWidget {
+  @override
+  _CustomDrawerState createState() => _CustomDrawerState();
+}
+
+class _CustomDrawerState extends State<CustomDrawer> {
+  String _userName = 'User';
+  String _userEmail = 'example@example.com';
+  String _profileImage =
+      'https://via.placeholder.com/150'; // Default placeholder
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _userName = prefs.getString('userFullName') ?? 'User';
+      _userEmail = prefs.getString('userEmail') ?? 'example@example.com';
+
+      // You can also fetch and store a custom profile image URL from SharedPreferences if needed
+      _profileImage =
+          prefs.getString('PhotoUrl') ?? 'https://via.placeholder.com/150';
+      print('heelo heeelo help me${_profileImage}');
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Drawer(
       child: ListView(
         padding: EdgeInsets.zero,
         children: [
-          const UserAccountsDrawerHeader(
-            accountName: Text("Muhammad Sufiyan"),
-            accountEmail: Text("ksufi7350@gmail.com"),
+          UserAccountsDrawerHeader(
+            accountName: Text(_userName),
+            accountEmail: Text(_userEmail),
             currentAccountPicture: CircleAvatar(
-              backgroundImage: AssetImage(" 'https://via.placeholder.com/150'"),
+              backgroundImage: NetworkImage(_profileImage),
             ),
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               color: Color.fromARGB(255, 174, 128, 1),
             ),
           ),

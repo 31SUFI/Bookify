@@ -1,5 +1,5 @@
-import 'package:bookify/Homescreen/AuthorsDetailsPage.dart';
-import 'package:bookify/Homescreen/shimmers_widgets.dart';
+import 'package:bookify/features/Homescreen/presentation/AuthorsDetailsPage.dart';
+import 'package:bookify/features/Homescreen/presentation/shimmers_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 

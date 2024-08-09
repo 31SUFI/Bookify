@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'welcomeScreen.dart';
+import 'features/authentication/presentation/welcomeScreen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 

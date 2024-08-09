@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:bookify/databaseService.dart';
+import 'package:bookify/core/databaseService.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';

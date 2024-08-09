@@ -1,6 +1,6 @@
-import 'package:bookify/Homescreen/HomeScreen.dart';
-import 'package:bookify/authentication/Login.dart';
-import 'package:bookify/authentication/Signup.dart';
+import 'package:bookify/features/Homescreen/presentation/HomeScreen.dart';
+import 'package:bookify/features/authentication/presentation/Login.dart';
+import 'package:bookify/features/authentication/presentation/Signup.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -14,7 +14,15 @@ class MyApp extends StatelessWidget {
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Scaffold(
-            body: Center(child: LinearProgressIndicator()),
+            body: Center(
+              child: SizedBox(
+                width: 100, // Adjust width as needed
+                // Adjust height as needed
+                child: LinearProgressIndicator(
+                  color: Color.fromARGB(255, 174, 128, 1),
+                ),
+              ),
+            ),
           );
         } else if (snapshot.data == true) {
           return HomeScreen();

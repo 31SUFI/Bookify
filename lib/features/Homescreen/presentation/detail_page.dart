@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:bookify/Homescreen/BookDetails.dart'; // Ensure this import path is correct
+import 'package:bookify/features/Homescreen/presentation/BookDetails.dart'; // Ensure this import path is correct
 import 'package:google_fonts/google_fonts.dart';
 
 class DetailPage extends StatefulWidget {

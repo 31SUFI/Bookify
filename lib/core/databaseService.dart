@@ -1,6 +1,6 @@
 import 'dart:developer'; // Import this for the log function
-import 'package:bookify/BookUploading/BookDetailUploading.dart';
-import 'package:bookify/authentication/ProfileSection.dart';
+import 'package:bookify/features/BookUploading/presentation/BookDetailUploading.dart';
+import 'package:bookify/features/authentication/presentation/ProfileSection.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 //import 'package:login_page/testingFirestore.dart';
@@ -36,7 +36,7 @@ class Databaseservice {
   // }
 }
 
-class DatabaseService {
+class AuthDatabaseService {
   final FirebaseFirestore _fire = FirebaseFirestore.instance;
 
   void updateProfile(ProfilePacket packet) {
@@ -46,5 +46,14 @@ class DatabaseService {
       print(e.toString()); // Log the error message
     }
     print('Profile updated with details: ${packet.toMap()}');
+  }
+
+  void SetProfile(Map<String, dynamic> packet, String docNAME) {
+    try {
+      _fire.collection("ProfileDetails").doc(docNAME).set(packet);
+    } catch (e) {
+      print(e.toString()); // Log the error message
+    }
+    print('Profile updated with details: ${packet}');
   }
 }

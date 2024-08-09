@@ -1,6 +1,6 @@
-import 'package:bookify/Homescreen/BookDetails.dart';
-import 'package:bookify/Homescreen/detail_page.dart';
-import 'package:bookify/Homescreen/shimmers_widgets.dart';
+import 'package:bookify/features/Homescreen/presentation/BookDetails.dart';
+import 'package:bookify/features/Homescreen/presentation/detail_page.dart';
+import 'package:bookify/features/Homescreen/presentation/shimmers_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 

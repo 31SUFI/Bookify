@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:bookify/read%20now.dart'; // Adjust this import path as needed
+import 'package:bookify/features/Homescreen/presentation/read%20now.dart'; // Adjust this import path as needed
 import 'package:path_provider/path_provider.dart';
 import 'package:http/http.dart' as http;
 import 'dart:io';
 
-// Declare this in a separate file (e.g., globals.dart)
+// Declare this in a separate file later (e.g., globals.dart)
 List<Map<String, dynamic>> favoriteBooks = [];
+Map<String, dynamic>? currentlyReadingBook;
 
 class BookDetailsScreen extends StatefulWidget {
   final Map<String, dynamic> book;
@@ -104,6 +105,10 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                   SizedBox(width: 8),
                   ElevatedButton(
                     onPressed: () {
+                      // Save the current book details for continue reading
+                      currentlyReadingBook = widget.book;
+                      print('Continuing reading: $currentlyReadingBook');
+
                       print('PdfUrl is: ${widget.book['pdfUrl']}');
                       Navigator.push(
                         context,

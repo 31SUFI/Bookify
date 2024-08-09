@@ -1,7 +1,7 @@
 import 'dart:io';
-import 'package:bookify/Homescreen/HomeScreen.dart';
-import 'package:bookify/authentication/Login.dart';
-import 'package:bookify/databaseService.dart';
+import 'package:bookify/features/Homescreen/presentation/HomeScreen.dart';
+import 'package:bookify/features/authentication/presentation/Login.dart';
+import 'package:bookify/core/databaseService.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -16,7 +16,7 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  final _dbservice = DatabaseService();
+  final _dbservice = AuthDatabaseService();
   late FirebaseFirestore db;
   Stream<DocumentSnapshot<Map<String, dynamic>>>? profileStream = null;
   String? userEmail;
