@@ -1,9 +1,13 @@
 import 'dart:io';
-
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:bookify/core/databaseService.dart';
+import 'package:bookify/features/AuthorRegistering/presentation/widgets/authorNameField.dart';
+import 'package:bookify/features/AuthorRegistering/presentation/widgets/imagePickerWidget.dart';
+import 'package:bookify/features/AuthorRegistering/presentation/widgets/actionButtons.dart';
+import 'package:bookify/features/AuthorRegistering/data/models/authorModel.dart';
 
 class AuthorRegister extends StatefulWidget {
   @override
@@ -11,7 +15,7 @@ class AuthorRegister extends StatefulWidget {
 }
 
 class _AuthorRegisterState extends State<AuthorRegister> {
-  final _dbservice = DatabaseService();
+  final _dbservice = DatabaseService2();
   final TextEditingController _authorController = TextEditingController();
   XFile? _authorImage;
   String imageUrl = '';
@@ -48,11 +52,45 @@ class _AuthorRegisterState extends State<AuthorRegister> {
     }
   }
 
+  void _registerAuthorProfile() {
+    final profilePacket = AuthorProfilePacket(
+        authorName: _authorController.text, image: imageUrl);
+    _dbservice.createAuthorProfile(profilePacket);
+    if (_authorImage != null) {
+      print('Image Path: ${_authorImage!.path}');
+    }
+    if (imageUrl.isNotEmpty) {
+      print('Image URL: $imageUrl');
+    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content:
+            Text('Profile Registered Successfully, you can clear the form now'),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
+  void _clearForm() {
+    _authorController.clear();
+    setState(() {
+      _authorImage = null;
+      imageUrl = '';
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Register Author Profile"),
+        title: Text(
+          "Register Author Profile",
+          style: GoogleFonts.merriweather(
+              textStyle: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  fontStyle: FontStyle.italic)),
+        ),
         centerTitle: true,
         backgroundColor: const Color.fromARGB(255, 174, 128, 1),
       ),
@@ -78,104 +116,18 @@ class _AuthorRegisterState extends State<AuthorRegister> {
                 ),
               ),
               SizedBox(height: 24),
-              TextField(
-                controller: _authorController,
-                decoration: InputDecoration(
-                  labelText: 'Author Name',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.person),
-                ),
-              ),
+              AuthorNameField(controller: _authorController),
               SizedBox(height: 16),
-              GestureDetector(
-                onTap: _pickImage,
-                child: Container(
-                  decoration: BoxDecoration(
-                      color: Colors.grey[200],
-                      borderRadius: BorderRadius.all(Radius.circular(12))),
-                  height: 200,
-                  width: double.infinity,
-                  child: _authorImage == null
-                      ? Center(child: Text('Tap to select an image'))
-                      : Image.file(
-                          File(_authorImage!.path),
-                          fit: BoxFit.cover,
-                        ),
-                ),
-              ),
+              ImagePickerWidget(image: _authorImage, onTap: _pickImage),
               SizedBox(height: 24),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  ElevatedButton(
-                    onPressed: () {
-                      final profilePacket = ProfilePacket(
-                          authorName: _authorController.text, image: imageUrl);
-                      _dbservice.createAuthor(profilePacket);
-                      if (_authorImage != null) {
-                        print('Image Path: ${_authorImage!.path}');
-                      }
-                      if (imageUrl.isNotEmpty) {
-                        print('Image URL: $imageUrl');
-                      }
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                              'Profile Registered Successfully, you can clear the form now'),
-                          behavior: SnackBarBehavior.floating,
-                        ),
-                      );
-                    },
-                    child: Text('Register Now'),
-                    style: ElevatedButton.styleFrom(),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      _authorController.clear();
-                      setState(() {
-                        _authorImage = null;
-                        imageUrl = '';
-                      });
-                    },
-                    child: Text('Clear'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.grey,
-                    ),
-                  ),
-                ],
+              ActionButtons(
+                onRegister: _registerAuthorProfile,
+                onClear: _clearForm,
               ),
             ],
           ),
         ),
       ),
     );
-  }
-}
-
-class ProfilePacket {
-  final String authorName;
-  final String image;
-
-  ProfilePacket({
-    required this.authorName,
-    required this.image,
-  });
-
-  Map<String, dynamic> toMap() => {
-        "authorName": this.authorName,
-        "image": this.image,
-      };
-}
-
-class DatabaseService {
-  final FirebaseFirestore _fire = FirebaseFirestore.instance;
-
-  void createAuthor(ProfilePacket packet) {
-    try {
-      _fire.collection("AuthorDetails").add(packet.toMap());
-    } catch (e) {
-      print(e.toString()); // Log the error message
-    }
-    print('Profile updated with details: ${packet.toMap()}');
   }
 }

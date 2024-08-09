@@ -1,19 +1,19 @@
 import 'package:bookify/features/Homescreen/presentation/custom_drawer.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+// import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+// import 'package:shared_preferences/shared_preferences.dart';
 import 'intro_section.dart';
 import 'categories_section.dart';
 import 'trending_books_section.dart';
 import 'authors_section.dart';
 import 'ContinueReading.dart';
-import 'package:bookify/features/AuthorRegistering/presentation/registerAuthor.dart';
-import 'package:bookify/features/BookUploading/presentation/BookDetailUploading.dart';
-import 'package:bookify/features/authentication/presentation/Login.dart';
-import 'package:bookify/features/authentication/presentation/ProfileSection.dart';
-import 'package:bookify/features/Homescreen/presentation/favoriteBooks.dart';
+// import 'package:bookify/features/AuthorRegistering/presentation/registerAuthor.dart';
+// import 'package:bookify/features/BookUploading/presentation/BookDetailUploading.dart';
+// import 'package:bookify/features/authentication/presentation/Login.dart';
+// import 'package:bookify/features/authentication/presentation/ProfileSection.dart';
+// import 'package:bookify/features/Homescreen/presentation/favoriteBooks.dart';
 
 class HomeScreen extends StatefulWidget {
   @override

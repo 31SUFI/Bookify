@@ -1,4 +1,6 @@
 import 'dart:developer'; // Import this for the log function
+import 'package:bookify/features/AuthorRegistering/data/models/authorModel.dart';
+import 'package:bookify/features/AuthorRegistering/presentation/registerAuthor.dart';
 import 'package:bookify/features/BookUploading/presentation/BookDetailUploading.dart';
 import 'package:bookify/features/authentication/presentation/ProfileSection.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -55,5 +57,18 @@ class AuthDatabaseService {
       print(e.toString()); // Log the error message
     }
     print('Profile updated with details: ${packet}');
+  }
+}
+
+class DatabaseService2 {
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  void createAuthorProfile(AuthorProfilePacket packet) {
+    try {
+      _firestore.collection("AuthorDetails").add(packet.toMap());
+      log('Profile updated with details: ${packet.toMap()}');
+    } catch (e) {
+      log(e.toString()); // Log the error message
+    }
   }
 }
