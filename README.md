@@ -1,16 +1,41 @@
-# bookify
 
-A new Flutter project.
 
-## Getting Started
+![image](https://github.com/user-attachments/assets/f89e62a9-1043-4753-98dc-8395736a23cd)
 
-This project is a starting point for a Flutter application.
+Bookify App
 
-A few resources to get you started if this is your first Flutter project:
+A Flutter-based book browsing app with seamless user authentication and an intuitive platform for book enthusiasts and authors.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+Features
+Authentication:
+Google Sign-In.
+Email/Password registration and login.
+Book Dashboard:
+Browse books by categories.
+View detailed book information.
+Author Features:
+Register as an author.
+Upload books directly to the platform.
+Firebase Integration:
+Firebase Authentication for secure user sign-ins.
+Cloud Firestore for dynamic book and user data.
+Firebase Storage for efficient file handling and book uploads.
+Screenshots
+Login Page
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Users can log in via Google or email/password.
+
+Book Dashboard
+
+Browse and explore books, categorized for ease of navigation.
+
+Author Registration
+
+Users can register as authors and contribute books.
+
+Technologies Used
+Flutter: Cross-platform app development framework.
+Firebase:
+Authentication for user management.
+Cloud Firestore for database management.
+Firebase Storage for uploading and retrieving files
